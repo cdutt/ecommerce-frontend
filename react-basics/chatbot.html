@@ -1,0 +1,308 @@
+<!-- In this lesson: 1. component = piece of website 2. component = create our own
+HTML elements 3. Started the catbot projects 4. split the chatbot into ChatInput
+chatMessage 5. props = make components reusable 6. destructuing, Guard
+operator(&&) 7. Code cleanup 8. created app component State: data that is
+connected to the HTML. When we update this data, it will update the HTML. -->
+
+<!--
+1. Save the data (using arays and objects)
+2.Generate the HTML (using .map() and key prop)
+3. Make it interactive, using onClick and onChange
+4. State = data that changes over time, and is connected to html
+5. updtater function = update the state and update the HTML
+6. Array Destructuring 
+7. Lifting the state up = share the state between components
+8.Made <ChatInput> interactive
+9. Got responses from chatbot-->
+
+<!doctype html>
+<html>
+  <head>
+    <title>Chatbot</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin-top: 0px;
+        margin-bottom: 0px;
+      }
+
+      .send-button {
+        background-color: rgb(25, 135, 84);
+        color: white;
+        padding: 12px 20px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      .chat-input {
+        padding: 12px 15px;
+        border-radius: 10px;
+        border-width: 1px;
+        font-size: 15px;
+
+        flex-grow: 1;
+      }
+
+      .chat-input-container {
+        display: flex;
+        margin-bottom: 60px;
+      }
+
+      .app-container {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+
+        height: 100vh; /*vh=viewport height*/
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-message-user {
+        display: flex;
+        justify-content: end;
+        align-items: start;
+      }
+
+      .chat-message-robot {
+        display: flex;
+        align-items: start;
+      }
+
+      .chat-message-text {
+        background-color: rgb(238, 238, 238);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-right: 10px;
+        margin-left: 10px;
+        margin-bottom: 20px;
+        max-width: 300px;
+      }
+
+      .chat-message-profile {
+        width: 45px;
+      }
+
+      .chat-messages-container {
+        flex-grow: 1;
+        margin-top: 20px;
+        overflow: scroll;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev@8.6.4/dayjs.js"></script>
+
+    <!--loads the react external library-->
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <!--loads the react external library-->
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <script type="text/babel">
+      function ChatInput({ chatMessages, setChatMessages }) {
+        const [inputText, setInputText] = React.useState(""); //inside braket is initial value which empty string
+        //input text above used = current data of 1st value and setInputText is updater function
+
+        function saveInputText(event) {
+          setInputText(event.target.value); //event.target = gives us the element that we are typing in (acesss of below input element) and .value used to get text
+        }
+        //lifting the state up: share state between multiple components
+
+        async function sendMessage() {
+          const newChatMessages = [
+            ...chatMessages,
+            {
+              message: inputText,
+              sender: "user",
+              id: crypto.randomUUID(),
+            },
+          ];
+
+          setChatMessages(newChatMessages);
+
+          const response = await Chatbot.getResponseAsync(inputText);
+          setChatMessages([
+            ...newChatMessages,
+            {
+              message: response,
+              sender: "robot",
+              id: crypto.randomUUID(),
+            },
+          ]);
+
+          setInputText("");
+        }
+
+        function handleKeyDown(event) {
+          if (event.key === "Enter") {
+            sendMessage();
+          }
+        }
+        function handleKeyDown(event) {
+          if (event.key === "Escape") {
+            sendMessage("");
+          }
+        }
+
+        return (
+          <div className="chat-input-container">
+            <input
+              placeholder="Send a message to Chatbot"
+              size="30"
+              onChange={saveInputText}
+              value={inputText}
+              className="chat-input"
+            />
+            <button onClick={sendMessage} className="send-button">
+              Send
+            </button>
+          </div>
+        );
+      }
+      //onChange is a event in react which runs a function we change the text inside an <input>
+      function ChatMessage({ message, sender }) {
+        // const message = props.message; //attributes of html of app can be accessed through props object, as prop make our component reusable
+        // const sender = props.sender;
+        // const {message, sender} = props;
+
+        /*
+                          if (sender === "robot") {
+                            return (
+                              <div>
+                                <img src="robot.png" width="50" />
+                                {message}
+                              </div>
+                            );
+                          }
+                            */
+        //below '&&' guard operator is used as two times if cant be used  below in jsx code
+        //and we can write the code without duplicating
+        return (
+          <div
+            className={
+              sender === "user" ? "chat-message-user" : "chat-message-robot"
+            }
+          >
+            {sender === "robot" && (
+              <img src="robot.png" className="chat-message-profile" />
+            )}
+            <div className="chat-message-text">{message}</div>
+
+            {sender === "user" && (
+              <img src="user.png" className="chat-message-profile" />
+            )}
+          </div>
+        );
+      }
+
+      //<></>: is the fragment= group elements together, without creating an extra <div>
+
+      function ChatMessages({ chatMessages }) {
+        // as chatMessages is a normal variable and after updating it, it will not update html hence this line "React.useState() used to convert that into state "
+        // const chatMessages = array[0]; //current data i.e., value of chatMessages(The current data)
+        // const setChatMessages = array[1]; //second value of the array is the function that updates the data
+        //const [chatMessages, setChatMessages] = array; //this line is short cut of above two lines as destructuring used here
+        //in React,we should not update data directly like using push method below
+        //always use function like above in chatMessages to update the data
+
+        /* chatMessages.push({
+                  message: "test",
+                  sender: "user",
+                  id: crypto.randomUUID(),
+                });
+
+                console.log(chatMessages); */
+        //this is not right method to update data directly.instead do like below by using updater function
+
+        //below onClick is called Event and {sendMessage} is event handler
+
+        //event prop must use camelCase, first letter must be small
+
+        //State = data that is connected to HTML, When we update this data,
+        // it will update the HTML
+        const chatMessagesRef = React.useRef(null);
+
+        React.useEffect(() => {
+          const containerElem = chatMessagesRef.current;
+          if (containerElem) {
+            containerElem.scrollTop = containerElem.scrollHeight;
+          }
+        }, [chatMessages]);
+
+        return (
+          <div className="chat-messages-container" ref={chatMessagesRef}>
+            {chatMessages.map((chatMessage) => {
+              return (
+                <ChatMessage
+                  message={chatMessage.message}
+                  sender={chatMessage.sender}
+                  key={chatMessage.id}
+                />
+              );
+            })}
+          </div>
+        );
+      }
+
+      function App() {
+        const [chatMessages, setChatMessages] = React.useState([
+          {
+            message: "hello chatbot",
+            sender: "user",
+            id: "id1",
+          },
+          {
+            message: "Hello! How can I help you",
+            sender: "robot",
+            id: "id2",
+          },
+          {
+            message: "can you get me todays date?hello chatbot",
+            sender: "user",
+            id: "id3",
+          },
+          {
+            message: "Today is september 27",
+            sender: "robot",
+            id: "id4",
+          },
+        ]);
+        //state liftting has been done heare in app component to share here from chatMessagaes component to  appcomponent
+        return (
+          <div className="app-container">
+            <ChatMessages chatMessages={chatMessages} />
+            <ChatInput
+              chatMessages={chatMessages}
+              setChatMessages={setChatMessages}
+            />
+          </div>
+        );
+      }
+
+      /* const app = (
+                          <>
+                            <CharInput />
+                            <ChatMessage message="hello chatbot" sender="user" />
+                            <ChatMessage message="Hello! How can I help you" sender="robot" />
+                            <ChatMessage message="can you get me todays date?" sender="user" />
+                            <ChatMessage message="Today is september 27" sender="robot" />
+                          </>
+                        ); */ //this is stored in variable but above can be stored in function component
+
+      //attributes like mesessge saved in props (properties) which is object can be seen in console.
+      // these attributes can used in the resuable function chatmessege above from app component again and again with using props.
+      const container = document.querySelector(".js-container");
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>
