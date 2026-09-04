@@ -1,13 +1,18 @@
 import axios from "axios";
+import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
-import { products } from "../../starting-code/data/products";
+
 import CheckmarkIcon from "../assets/images/icons/checkmark.png";
 import "./HomePage.css";
 
 export function HomePage() {
-  axios.get("http://localhost:3000/api/products").then((response) => {
-    console.log(response.data);
-  });
+  const [products, setProducts] = useState([]); //setProducts = updater function which 1)lets us update the vale and regenerate the HTML
+
+  useEffect(() => {
+    axios.get("http://localhost:3000/api/products").then((response) => {
+      setProducts(response.data);
+    });
+  }, []); //[]=> Dependency array = lets us control when useEffect runs, []= only run once
 
   return (
     <>
