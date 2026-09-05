@@ -5,16 +5,12 @@ import { Header } from "../components/Header";
 import CheckmarkIcon from "../assets/images/icons/checkmark.png";
 import "./HomePage.css";
 
-export function HomePage() {
+export function HomePage({ cart }) {
   const [products, setProducts] = useState([]); //setProducts = updater function which 1)lets us update the vale and regenerate the HTML
-  const [cart, setCart] = useState([]);
+
   useEffect(() => {
     axios.get("/api/products").then((response) => {
       setProducts(response.data);
-    });
-
-    axios.get("/api/cart-items").then((response) => {
-      setCart(response.data);
     });
   }, []); //[]=> Dependency array = lets us control when useEffect runs, []= only run once
 
