@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-export function deliveryDate({ selectedDeliveryOption }) {
+export function DeliveryDate({ selectedDeliveryOption }) {
   return (
     <div className="delivery-date">
       Delivery date:

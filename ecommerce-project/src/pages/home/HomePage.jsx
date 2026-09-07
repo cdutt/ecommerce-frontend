@@ -10,9 +10,12 @@ export function HomePage({ cart }) {
   const [products, setProducts] = useState([]); //setProducts = updater function which 1)lets us update the vale and regenerate the HTML
 
   useEffect(() => {
-    axios.get("/api/products").then((response) => {
+    const getHomeData = async () => {
+      const response = await axios.get("/api/products");
       setProducts(response.data);
-    });
+    };
+
+    getHomeData();
   }, []); //[]=> Dependency array = lets us control when useEffect runs, []= only run once
 
   return (
