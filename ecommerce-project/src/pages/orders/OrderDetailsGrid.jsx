@@ -19,6 +19,7 @@ export function OrderDetailsGrid({ order, loadCart }) {
             key={product.id}
             className="order-details-container"
             data-testid="order-product-details"
+            style={{ display: "contents" }}
           >
             <div className="product-image-container">
               <img src={product.image} alt={product.name} />
