@@ -52,9 +52,15 @@ export function Header({ cart }) {
           type="text"
           placeholder="Search"
           data-testid="header-search-bar"
+          value={search}
+          onChange={updateSearchInput}
         />
 
-        <button className="search-button" data-testid="header-search-button">
+        <button
+          className="search-button"
+          data-testid="header-search-button"
+          onClick={searchProducts}
+        >
           <img className="search-icon" src={SearchIcon} />
         </button>
       </div>
